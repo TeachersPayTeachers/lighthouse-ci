@@ -62,6 +62,12 @@ function getCurrentHash() {
  * @return {string}
  */
 function getCommitTime(hash) {
+  const time = getEnvVarIfSet([
+    // Manual override
+    'LHCI_BUILD_CONTEXT__COMMIT_TIME',
+  ]);
+  if (time) return time.trim().slice(0, 40);
+
   const result = childProcess.spawnSync('git', ['log', '-n1', '--pretty=%cI', hash], {
     encoding: 'utf8',
   });
@@ -138,6 +144,12 @@ function getExternalBuildUrl() {
  * @return {string}
  */
 function getCommitMessage(hash = 'HEAD') {
+  const message = getEnvVarIfSet([
+    // Manual override
+    'LHCI_BUILD_CONTEXT__COMMIT_MESSAGE',
+  ]);
+  if (message) return message.trim().slice(0, 80);
+
   const result = childProcess.spawnSync('git', ['log', '--format=%s', '-n', '1', hash], {
     encoding: 'utf8',
   });
@@ -153,6 +165,12 @@ function getCommitMessage(hash = 'HEAD') {
  * @return {string}
  */
 function getAuthor(hash = 'HEAD') {
+  const author = getEnvVarIfSet([
+    // Manual override
+    'LHCI_BUILD_CONTEXT__AUTHOR',
+  ]);
+  if (author) return author.trim().slice(0, 256);
+
   const result = childProcess.spawnSync('git', ['log', '--format=%aN <%aE>', '-n', '1', hash], {
     encoding: 'utf8',
   });
@@ -168,6 +186,12 @@ function getAuthor(hash = 'HEAD') {
  * @return {string}
  */
 function getAvatarUrl(hash = 'HEAD') {
+  const avatarUrl = getEnvVarIfSet([
+    // Manual override
+    'LHCI_BUILD_CONTEXT__AVATAR_URL',
+  ]);
+  if (avatarUrl) return avatarUrl;
+
   const result = childProcess.spawnSync('git', ['log', '--format=%aE', '-n', '1', hash], {
     encoding: 'utf8',
   });
@@ -186,6 +210,12 @@ function getAvatarUrl(hash = 'HEAD') {
  * @return {string}
  */
 function getAncestorHashForMaster(hash = 'HEAD') {
+  const ancestorHash = getEnvVarIfSet([
+    // Manual override
+    'LHCI_BUILD_CONTEXT__ANCESTOR_HASH_MASTER',
+  ]);
+  if (ancestorHash) return ancestorHash;
+
   const result = childProcess.spawnSync('git', ['rev-parse', `${hash}^`], {encoding: 'utf8'});
   // Ancestor hash is optional, so do not throw if it can't be computed.
   // See https://github.com/GoogleChrome/lighthouse-ci/issues/36
@@ -199,6 +229,12 @@ function getAncestorHashForMaster(hash = 'HEAD') {
  * @return {string}
  */
 function getAncestorHashForBranch(hash = 'HEAD') {
+  const ancestorHash = getEnvVarIfSet([
+    // Manual override
+    'LHCI_BUILD_CONTEXT__ANCESTOR_HASH_BRANCH',
+  ]);
+  if (ancestorHash) return ancestorHash;
+
   const result = runCommandsUntilFirstSuccess([
     ['git', ['merge-base', hash, 'origin/master']],
     ['git', ['merge-base', hash, 'master']],
@@ -216,6 +252,12 @@ function getAncestorHashForBranch(hash = 'HEAD') {
  * @return {string}
  */
 function getAncestorHash(hash = 'HEAD') {
+  const ancestorHash = getEnvVarIfSet([
+    // Manual override
+    'LHCI_BUILD_CONTEXT__ANCESTOR_HASH',
+  ]);
+  if (ancestorHash) return ancestorHash;
+
   return getCurrentBranch() === 'master'
     ? getAncestorHashForMaster(hash)
     : getAncestorHashForBranch(hash);
